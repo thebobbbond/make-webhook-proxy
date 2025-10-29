@@ -1,7 +1,11 @@
 export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    // Used by OpenAI to validate the endpoint
+    return res.status(200).json({ status: 'ok', message: 'GPT action endpoint ready' });
+  }
+
   if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
@@ -18,8 +22,7 @@ export default async function handler(req, res) {
     if (!forwardRes.ok) {
       const errorText = await forwardRes.text();
       console.error('Make webhook error:', errorText);
-      res.status(502).json({ error: 'Failed to forward to Make webhook' });
-      return;
+      return res.status(502).json({ error: 'Failed to forward to Make webhook' });
     }
 
     res.status(200).json({ status: 'success', message: 'Task sent to Make webhook' });
@@ -28,4 +31,3 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Internal server error' });
   }
 }
-
